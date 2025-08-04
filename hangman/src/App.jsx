@@ -11,6 +11,10 @@ export default function AssemblyEndgame() {
   const alphabet = "abcdefghijklmnopqrstuvwxyz"
   //Derived values
   const wrongGuessCount = guessedLetters.filter(letter => !currentWord.includes(letter)).length
+  const isGameLost = wrongGuessCount < languages.length - 1 ? false : true
+  const isGameWon = guessedLetters.filter(letter => currentWord.includes(letter)).length === currentWord.length ? true : false
+  const isGameOver = isGameLost || isGameWon
+
 
   function addGuessedLetter(letter) {
     setGuessedLetters(prevLetters =>
@@ -51,22 +55,38 @@ export default function AssemblyEndgame() {
       correct: isCorrect,
       wrong: isWrong
     })
+    if (!isGameOver) {
+      return (
 
+        <button
+          className={className}
+          key={letter}
+          onClick={() => addGuessedLetter(letter)}
+        >
+          {letter.toUpperCase()}
+        </button>
 
+      )
+    }
+    else {
+      return (
 
+        <button disabled={true}
+          className={className}
+          key={letter}
+          onClick={() => addGuessedLetter(letter)}
+        >
+          {letter.toUpperCase()}
+        </button>
 
-    return (
-
-      <button
-        className={className}
-        key={letter}
-        onClick={() => addGuessedLetter(letter)}
-      >
-        {letter.toUpperCase()}
-      </button>
-
-    )
+      )
+    }
   })
+
+  function disableButton() {
+    document.getElementsByClassName("keyboard").disabled = true
+  }
+
 
 
   return (
@@ -89,7 +109,7 @@ export default function AssemblyEndgame() {
       <section className="keyboard">
         {keyboardElements}
       </section>
-      <button className="new-game">New Game</button>
-    </main>
+      {isGameOver && <button className="new-game">New Game</button>}
+    </main >
   )
 }

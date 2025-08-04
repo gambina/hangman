@@ -65,7 +65,7 @@ span.chip {
 
 /* Dimmed overlay with skull on "lost" languages */
 span.chip.lost::before {
-  content: '❌';
+  content: '';
   position: absolute;
   display: flex;
   align-items: center;
