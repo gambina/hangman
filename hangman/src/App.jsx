@@ -4,10 +4,13 @@ import { languages } from "./assets/languages";
 
 
 export default function AssemblyEndgame() {
+  //State values
   const [currentWord, setCurrentWord] = useState("react")
   const [guessedLetters, setGuessedLetters] = useState([])
-
+  //Static values
   const alphabet = "abcdefghijklmnopqrstuvwxyz"
+  //Derived values
+  const wrongGuessCount = guessedLetters.filter(letter => !currentWord.includes(letter)).length
 
   function addGuessedLetter(letter) {
     setGuessedLetters(prevLetters =>
@@ -17,14 +20,16 @@ export default function AssemblyEndgame() {
     )
   }
 
-  const languageElements = languages.map(lang => {
+  const languageElements = languages.map((lang, index) => {
+    const isLostLanguage = index < wrongGuessCount
     const styles = {
       backgroundColor: lang.backgroundColor,
       color: lang.color
     }
+    const className = clsx("chip", isLostLanguage ? "lost" : "")
     return (
       <span
-        className="chip"
+        className={className}
         style={styles}
         key={lang.name}
       >
@@ -34,8 +39,9 @@ export default function AssemblyEndgame() {
   })
 
   const letterElements = currentWord.split("").map((letter, index) => (
-    <span key={index}>{letter.toUpperCase()}</span>
+    <span key={index}>{guessedLetters.includes(letter) ? letter.toUpperCase() : null}</span>
   ))
+
 
   const keyboardElements = alphabet.split("").map(letter => {
     const isGuessed = guessedLetters.includes(letter)
@@ -46,9 +52,11 @@ export default function AssemblyEndgame() {
       wrong: isWrong
     })
 
-    console.log(className)
+
+
 
     return (
+
       <button
         className={className}
         key={letter}
@@ -56,8 +64,10 @@ export default function AssemblyEndgame() {
       >
         {letter.toUpperCase()}
       </button>
+
     )
   })
+
 
   return (
     <main>
