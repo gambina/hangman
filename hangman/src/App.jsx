@@ -2,19 +2,21 @@ import { useState } from "react"
 import { clsx } from "clsx"
 import { languages } from "./assets/languages";
 import { getFarewellText, getRandomWord } from "./assets/utils"
+import Confetti from "react-confetti"
 
 
 
 export default function AssemblyEndgame() {
   //State values
-  const [currentWord, setCurrentWord] = useState("react")
+  const [currentWord, setCurrentWord] = useState(() => getRandomWord()) //ilk seferde render, sonrakilerde ignores. lazy deniyor buna 
   const [guessedLetters, setGuessedLetters] = useState([])
   //Static values
   const alphabet = "abcdefghijklmnopqrstuvwxyz"
   //Derived values
   const wrongGuessCount = guessedLetters.filter(letter => !currentWord.includes(letter)).length
   const isGameLost = wrongGuessCount < languages.length - 1 ? false : true
-  const isGameWon = guessedLetters.filter(letter => currentWord.includes(letter)).length === currentWord.length ? true : false
+  const isGameWon = currentWord.split("").every(letter => guessedLetters.includes(letter))
+  //guessedLetters.filter(letter => currentWord.includes(letter)).length === currentWord.length ? true : false
   const isGameOver = isGameLost || isGameWon
   const lastGuessedLetter = guessedLetters[guessedLetters.length - 1]
   const isLastGuessIncorrect = lastGuessedLetter && !currentWord.includes(lastGuessedLetter)
@@ -45,9 +47,26 @@ export default function AssemblyEndgame() {
     )
   })
 
-  const letterElements = currentWord.split("").map((letter, index) => (
-    <span key={index}>{guessedLetters.includes(letter) ? letter.toUpperCase() : null}</span>
-  ))
+  function startNewGame() {
+    setCurrentWord(getRandomWord())
+    setGuessedLetters([])
+  }
+
+  const letterElements = currentWord.split("").map((letter, index) => {
+    const shouldRevealLetter = isGameLost || guessedLetters.includes(letter)
+
+    const letterClassName = clsx(
+      isGameLost && !guessedLetters.includes(letter) && "missed-letter"
+    )
+    return (< span className={letterClassName}
+      key={index} > {
+        shouldRevealLetter
+          ? letter.toUpperCase()
+          : null
+      }
+    </span >)
+  }
+  )
 
 
   const keyboardElements = alphabet.split("").map(letter => {
@@ -119,9 +138,10 @@ export default function AssemblyEndgame() {
     }
     return null
   }
-
+  console.log(currentWord)
   return (
     <main>
+      {isGameWon && <Confetti />}
       <header>
         <h1>Assembly: Endgame</h1>
         <p>Guess the word within 8 attempts to keep the
@@ -139,7 +159,7 @@ export default function AssemblyEndgame() {
       <section className="keyboard">
         {keyboardElements}
       </section>
-      {isGameOver && <button className="new-game">New Game</button>}
+      {isGameOver && <button onClick={startNewGame} className="new-game">New Game</button>}
     </main >
   )
 }
