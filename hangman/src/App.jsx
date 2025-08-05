@@ -143,7 +143,7 @@ export default function AssemblyEndgame() {
     <main>
       {isGameWon && <Confetti />}
       <header>
-        <h1>Assembly: Endgame</h1>
+        <h1>Ultimate Hangman</h1>
         <p>Guess the word within 8 attempts to keep the
           programming world safe from Assembly!</p>
       </header>
