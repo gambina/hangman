@@ -1,6 +1,8 @@
 import { useState } from "react"
 import { clsx } from "clsx"
 import { languages } from "./assets/languages";
+import { getFarewellText, getRandomWord } from "./assets/utils"
+
 
 
 export default function AssemblyEndgame() {
@@ -14,7 +16,8 @@ export default function AssemblyEndgame() {
   const isGameLost = wrongGuessCount < languages.length - 1 ? false : true
   const isGameWon = guessedLetters.filter(letter => currentWord.includes(letter)).length === currentWord.length ? true : false
   const isGameOver = isGameLost || isGameWon
-
+  const lastGuessedLetter = guessedLetters[guessedLetters.length - 1]
+  const isLastGuessIncorrect = lastGuessedLetter && !currentWord.includes(lastGuessedLetter)
 
   function addGuessedLetter(letter) {
     setGuessedLetters(prevLetters =>
@@ -62,6 +65,7 @@ export default function AssemblyEndgame() {
           className={className}
           key={letter}
           onClick={() => addGuessedLetter(letter)}
+          aria-disabled={guessedLetters.includes(letter)}
         >
           {letter.toUpperCase()}
         </button>
@@ -75,6 +79,7 @@ export default function AssemblyEndgame() {
           className={className}
           key={letter}
           onClick={() => addGuessedLetter(letter)}
+          aria-disabled={guessedLetters.includes(letter)}
         >
           {letter.toUpperCase()}
         </button>
@@ -83,11 +88,37 @@ export default function AssemblyEndgame() {
     }
   })
 
-  function disableButton() {
-    document.getElementsByClassName("keyboard").disabled = true
+  const gameStatusClass = clsx("game-status",
+    {
+      won: isGameWon,
+      lost: isGameLost,
+      farewell: isLastGuessIncorrect && !isGameOver
+    }
+  )
+
+  function renderGameStatus() {
+    if (!isGameOver && isLastGuessIncorrect) {
+      return (
+        <p className="farewell-message">{getFarewellText(languages[wrongGuessCount - 1].name)}</p>)
+    }
+    if (isGameWon) {
+      return (
+        <>
+          <h2>You win!</h2>
+          <p>Well done! 🎉</p>
+        </>
+      )
+    }
+    if (isGameLost) {
+      return (
+        <>
+          <h2>Game over!</h2>
+          <p>You lose! Better start learning Assembly 😂</p>
+        </>
+      )
+    }
+    return null
   }
-
-
 
   return (
     <main>
@@ -96,9 +127,8 @@ export default function AssemblyEndgame() {
         <p>Guess the word within 8 attempts to keep the
           programming world safe from Assembly!</p>
       </header>
-      <section className="game-status">
-        <h2>You win!</h2>
-        <p>Well done! 🎉</p>
+      <section className={gameStatusClass}>
+        {renderGameStatus()}
       </section>
       <section className="language-chips">
         {languageElements}
